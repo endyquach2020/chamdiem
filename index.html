@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Chấm Điểm Thực Hành HTML Tự Động</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .upload-box {
+            border: 2px dashed #1a73e8;
+            padding: 30px;
+            text-align: center;
+            border-radius: 6px;
+            background: #f8fbff;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+        .upload-box input {
+            display: none;
+        }
+        .btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .score-board {
+            display: none;
+            margin-top: 20px;
+        }
+        .total-score-card {
+            background-color: #e8f0fe;
+            border-left: 6px solid #1a73e8;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-score-card h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .points {
+            font-size: 32px;
+            font-weight: bold;
+            color: #d93025;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f1f3f4;
+        }
+        .status-pass {
+            color: #137333;
+            font-weight: bold;
+        }
+        .status-fail {
+            color: #d93025;
+            font-weight: bold;
+        }
+        .preview-box {
+            margin-top: 25px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .preview-title {
+            background: #eee;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        iframe {
+            width: 100%;
+            height: 350px;
+            border: none;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>HỆ THỐNG CHẤM BÀI THỰC HÀNH HTML TỰ ĐỘNG</h1>
+   <center> <strong>Gửi bài thực hành qua email: nhicnttcantho@gmail.com </strong> </center>
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        <p style="margin: 0; font-size: 16px;">Chọn hoặc kéo thả tệp HTML (.html, .htm) của học sinh vào đây</p>
+        <div class="btn">Tải file bài làm lên</div>
+        <input type="file" id="fileInput" accept=".html, .htm" onchange="handleFileSelect(event)">
+    </div>
+
+    <div class="score-board" id="resultBoard">
+        <div class="total-score-card">
+            <div>
+                <h2>Kết quả chấm: <span id="fileNameDisplay" style="color: #1a73e8;"></span></h2>
+                <p style="margin: 5px 0 0; color: #555;">Đã phân tích cấu trúc DOM và đối chiếu barem điểm</p>
+            </div>
+            <div class="points"><span id="finalScore">0</span> / 10</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Phần bài tập</th>
+                    <th style="width: 45%;">Tiêu chí kỹ thuật</th>
+                    <th style="width: 15%; text-align: center;">Điểm đạt</th>
+                    <th style="width: 20%;">Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody id="criteriaTableBody">
+                <!-- Chi tiết điểm từng bài sẽ xuất hiện ở đây -->
+            </tbody>
+        </table>
+
+        <div class="preview-box">
+            <div class="preview-title">Trực quan giao diện bài làm của học sinh:</div>
+            <iframe id="previewFrame"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    document.getElementById('fileNameDisplay').textContent = file.name;
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const fileContent = e.target.result;
+        
+        // Hiển thị bài học sinh lên khung xem trước
+        const iframe = document.getElementById('previewFrame');
+        iframe.srcdoc = fileContent;
+
+        // Phân tích và chấm bài
+        gradeSubmission(fileContent);
+    };
+
+    reader.readAsText(file);
+}
+
+function gradeSubmission(htmlText) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+
+    let totalScore = 0;
+    const details = [];
+
+    function addCriteria(exercise, criteriaName, maxPoints, isPassed, note = '') {
+        const awarded = isPassed ? maxPoints : 0;
+        totalScore += awarded;
+        details.push({
+            exercise,
+            criteriaName,
+            awarded,
+            maxPoints,
+            isPassed,
+            note
+        });
+    }
+
+    // ==========================================
+    // CHẤM BÀI 1: BẢNG DỮ LIỆU (TỐI ĐA 4.0 ĐIỂM)
+    // ==========================================
+    const table = doc.querySelector('table');
+    const hasTable = !!table;
+    const caption = doc.querySelector('table caption');
+    const hasCaption = !!caption && caption.textContent.trim().length > 0;
+    const tableBorder = table && (table.getAttribute('border') || table.getAttribute('style')?.includes('border'));
+
+    // 1. Cấu trúc khung bảng & Caption (1.0 đ)
+    const b1_c1 = hasTable && hasCaption && !!tableBorder;
+    addCriteria('Bài 1: Table', 'Có thẻ <table>, <caption> và định dạng viền bảng', 1.0, b1_c1, 
+        !hasTable ? 'Thiếu thẻ table' : (!hasCaption ? 'Thiếu caption' : (!tableBorder ? 'Chưa tạo viền' : 'Đạt')));
+
+    // 2. Kỹ thuật gộp ô tiêu đề (rowspan, colspan) (1.5 đ)
+    let b1_c2 = false;
+    if (table) {
+        const rowspans = Array.from(table.querySelectorAll('th, td')).filter(el => el.getAttribute('rowspan') === '2');
+        const colspans3 = Array.from(table.querySelectorAll('th, td')).filter(el => el.getAttribute('colspan') === '3');
+        // Yêu cầu có ít nhất 2 ô rowspan="2" và 1 ô colspan="3"
+        b1_c2 = rowspans.length >= 2 && colspans3.length >= 1;
+    }
+    addCriteria('Bài 1: Table', 'Tiêu đề gộp dòng (rowspan="2") và gộp cột (colspan="3")', 1.5, b1_c2,
+        b1_c2 ? 'Đạt' : 'Chưa thiết lập đúng rowspan="2" hoặc colspan="3" ở tiêu đề');
+
+    // 3. Xử lý ô đặc cách gộp cột (1.5 đ)
+    let b1_c3 = false;
+    if (table) {
+        const colspans2 = Array.from(table.querySelectorAll('td')).filter(el => el.getAttribute('colspan') === '2');
+        const hasTextDacCach = colspans2.some(el => el.textContent.toLowerCase().includes('đặc cách'));
+        b1_c3 = colspans2.length >= 1 && hasTextDacCach;
+    }
+    addCriteria('Bài 1: Table', 'Dòng 2 gộp ô (colspan="2") chứa chữ "Đặc cách"', 1.5, b1_c3,
+        b1_c3 ? 'Đạt' : 'Thiếu ô colspan="2" cho trường hợp Đặc cách');
+
+
+    // ==========================================
+    // CHẤM BÀI 2: DANH SÁCH CÓ THỨ TỰ (TỐI ĐA 3.0 ĐIỂM)
+    // ==========================================
+    const ols = Array.from(doc.querySelectorAll('ol'));
+    const sups = Array.from(doc.querySelectorAll('sup'));
+    const subs = Array.from(doc.querySelectorAll('sub'));
+
+    // 1. Đánh số La Mã type="I" & thẻ mũ sup (0.75 đ)
+    const hasTypeI = ols.some(ol => ol.getAttribute('type') === 'I');
+    const hasSup = sups.length > 0;
+    const b2_c1 = hasTypeI && hasSup;
+    addCriteria('Bài 2: Ordered List', 'Dùng thẻ <ol type="I"> và thẻ <sup> hiển thị số mũ ax²', 0.75, b2_c1,
+        b2_c1 ? 'Đạt' : 'Chưa có type="I" hoặc thiếu thẻ <sup>');
+
+    // 2. Danh sách lồng cấp 2 type="a" & thẻ chỉ số sub (1.0 đ)
+    const hasTypeA = ols.some(ol => ol.getAttribute('type') === 'a');
+    const hasSub = subs.length > 0;
+    const b2_c2 = hasTypeA && hasSub;
+    addCriteria('Bài 2: Ordered List', 'Danh sách con <ol type="a"> lồng bên trong & thẻ <sub> (x₁, x₂)', 1.0, b2_c2,
+        b2_c2 ? 'Đạt' : 'Chưa lồng <ol type="a"> hoặc thiếu thẻ <sub>');
+
+    // 3. Thẻ ngắt quãng và thuộc tính đếm tiếp start="3" (1.25 đ)
+    const hasStart3 = ols.some(ol => ol.getAttribute('start') === '3');
+    const hasItalicNote = Array.from(doc.querySelectorAll('p, em, i')).some(el => el.textContent.toLowerCase().includes('lưu ý'));
+    const b2_c3 = hasStart3 && hasItalicNote;
+    addCriteria('Bài 2: Ordered List', 'Đoạn ngắt quãng lưu ý và thuộc tính start="3"', 1.25, b2_c3,
+        b2_c3 ? 'Đạt' : 'Chưa có thuộc tính start="3" hoặc thiếu ghi chú');
+
+
+    // ==========================================
+    // CHẤM BÀI 3: DANH SÁCH UL & MÔ TẢ (TỐI ĐA 3.0 ĐIỂM)
+    // ==========================================
+    const uls = Array.from(doc.querySelectorAll('ul'));
+    const dls = Array.from(doc.querySelectorAll('dl'));
+    const dts = Array.from(doc.querySelectorAll('dt'));
+    const dds = Array.from(doc.querySelectorAll('dd'));
+
+    // 1. Danh sách đa cấp với list-style-type: square và circle (1.0 đ)
+    const rawHtml = htmlText.toLowerCase();
+    const hasSquare = rawHtml.includes('square');
+    const hasCircle = rawHtml.includes('circle');
+    const b3_c1 = uls.length >= 2 && hasSquare && hasCircle;
+    addCriteria('Bài 3: Unordered & DL', 'Thẻ <ul> đa cấp với kiểu square và circle', 1.0, b3_c1,
+        b3_c1 ? 'Đạt' : 'Thiếu list-style-type square hoặc circle');
+
+    // 2. Cấu trúc danh sách mô tả <dl>, <dt>, <dd> (1.0 đ)
+    const b3_c2 = dls.length > 0 && dts.length >= 3 && dds.length >= 3;
+    addCriteria('Bài 3: Unordered & DL', 'Cấu trúc danh sách mô tả chuẩn (<dl>, <dt>, <dd>)', 1.0, b3_c2,
+        b3_c2 ? 'Đạt' : 'Chưa đủ bộ 3 thẻ dl, dt, dd cho bảng tra cứu');
+
+    // 3. Định dạng màu sắc chữ & in nghiêng (1.0 đ)
+    const hasColorBlue = rawHtml.includes('color: blue') || rawHtml.includes('color:blue') || rawHtml.includes('color: #');
+    const hasEmOrI = doc.querySelectorAll('em, i').length > 0;
+    const b3_c3 = hasColorBlue && hasEmOrI;
+    addCriteria('Bài 3: Unordered & DL', 'Thuộc tính style màu sắc (color) kết hợp in nghiêng (em/i)', 1.0, b3_c3,
+        b3_c3 ? 'Đạt' : 'Chưa định dạng màu sắc xanh hoặc in nghiêng');
+
+    // ==========================================
+    // XUẤT BẢNG KẾT QUẢ RA GIAO DIỆN
+    // ==========================================
+    document.getElementById('finalScore').textContent = totalScore.toFixed(2);
+    const tbody = document.getElementById('criteriaTableBody');
+    tbody.innerHTML = '';
+
+    details.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${item.exercise}</strong></td>
+            <td>${item.criteriaName}</td>
+            <td style="text-align: center; font-weight: bold;">${item.awarded} / ${item.maxPoints}</td>
+            <td>
+                <span class="${item.isPassed ? 'status-pass' : 'status-fail'}">
+                    ${item.isPassed ? '✓ ' + item.note : '✗ ' + item.note}
+                </span>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    document.getElementById('resultBoard').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
