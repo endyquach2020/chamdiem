@@ -3,313 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm Điểm Thực Hành HTML Tự Động</title>
+    <title>Hệ Thống Chấm & Lưu Bài Thực Hành HTML</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1a73e8;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .upload-box {
-            border: 2px dashed #1a73e8;
-            padding: 30px;
-            text-align: center;
-            border-radius: 6px;
-            background: #f8fbff;
-            cursor: pointer;
-            margin-bottom: 25px;
-        }
-        .upload-box input {
-            display: none;
-        }
-        .btn {
-            background-color: #1a73e8;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
-            display: inline-block;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .score-board {
-            display: none;
-            margin-top: 20px;
-        }
-        .total-score-card {
-            background-color: #e8f0fe;
-            border-left: 6px solid #1a73e8;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .total-score-card h2 {
-            margin: 0;
-            font-size: 20px;
-        }
-        .points {
-            font-size: 32px;
-            font-weight: bold;
-            color: #d93025;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 14px;
-        }
-        th {
-            background-color: #f1f3f4;
-        }
-        .status-pass {
-            color: #137333;
-            font-weight: bold;
-        }
-        .status-fail {
-            color: #d93025;
-            font-weight: bold;
-        }
-        .preview-box {
-            margin-top: 25px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .preview-title {
-            background: #eee;
-            padding: 8px 15px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        iframe {
-            width: 100%;
-            height: 350px;
-            border: none;
-            background: #fff;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 920px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { color: #1a73e8; text-align: center; margin-bottom: 25px; text-transform: uppercase; font-size: 21px; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .form-group { flex: 1; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; }
+        .upload-box { border: 2px dashed #1a73e8; padding: 25px; text-align: center; border-radius: 6px; background: #f8fbff; cursor: pointer; margin-bottom: 20px; }
+        .upload-box input { display: none; }
+        .btn-upload { background-color: #1a73e8; color: white; padding: 8px 18px; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 8px; }
+        .score-board { display: none; margin-top: 25px; }
+        .summary-card { background-color: #e8f0fe; border-left: 6px solid #1a73e8; padding: 15px 20px; margin-bottom: 20px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .points { font-size: 32px; font-weight: bold; color: #d93025; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; }
+        th { background-color: #f1f3f4; }
+        .status-pass { color: #137333; font-weight: bold; }
+        .status-fail { color: #d93025; font-weight: bold; }
+        .action-area { text-align: center; margin-top: 20px; padding: 15px; background-color: #fafafa; border: 1px solid #eee; border-radius: 6px; }
+        .btn-save { background-color: #34a853; color: white; border: none; padding: 12px 28px; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-save:disabled { background-color: #9e9e9e; cursor: not-allowed; }
+        .msg { margin-top: 10px; font-weight: bold; font-size: 14px; }
+        .preview-box { margin-top: 25px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+        .preview-title { background: #eee; padding: 8px 15px; font-weight: bold; font-size: 14px; }
+        iframe { width: 100%; height: 300px; border: none; background: #fff; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>HỆ THỐNG CHẤM BÀI THỰC HÀNH HTML TỰ ĐỘNG</h1>
-   <center> <strong>Gửi bài thực hành qua email: nhicnttcantho@gmail.com </strong> </center>
-    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-        <p style="margin: 0; font-size: 16px;">Chọn hoặc kéo thả tệp HTML (.html, .htm) của học sinh vào đây</p>
-        <div class="btn">Tải file bài làm lên</div>
-        <input type="file" id="fileInput" accept=".html, .htm" onchange="handleFileSelect(event)">
+    <h1>Hệ Thống Chấm & Lưu Bài Thực Hành HTML Tự Động</h1>
+
+    <!-- FORM NHẬP THÔNG TIN -->
+    <div class="form-row">
+        <div class="form-group">
+            <label for="fullname">Họ và tên học sinh (*):</label>
+            <input type="text" id="fullname" placeholder="Ví dụ: Nguyễn Văn An">
+        </div>
+        <div class="form-group" style="flex: 0.6;">
+            <label for="className">Lớp (*):</label>
+            <input type="text" id="className" placeholder="Ví dụ: 12A1">
+        </div>
     </div>
 
+    <!-- KHU VỰC CHỌN TỆP -->
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        <p style="margin: 0; font-size: 15px;">Nhấp vào đây để chọn tệp HTML (.html, .htm) nộp bài</p>
+        <div class="btn-upload">Tải file bài làm</div>
+        <input type="file" id="fileInput" accept=".html, .htm" onchange="handleFile(event)">
+    </div>
+
+    <!-- KHU VỰC HIỂN THỊ KẾT QUẢ VÀ NÚT LƯU -->
     <div class="score-board" id="resultBoard">
-        <div class="total-score-card">
+        <div class="summary-card">
             <div>
-                <h2>Kết quả chấm: <span id="fileNameDisplay" style="color: #1a73e8;"></span></h2>
-                <p style="margin: 5px 0 0; color: #555;">Đã phân tích cấu trúc DOM và đối chiếu barem điểm</p>
+                <h3 style="margin: 0;" id="displayStudent">Học sinh: </h3>
+                <p style="margin: 5px 0 0; color: #555;">Tệp bài làm: <span id="fileNameDisplay" style="font-weight: bold;"></span></p>
             </div>
-            <div class="points"><span id="finalScore">0</span> / 10</div>
+            <div class="points"><span id="totalPoints">0</span> / 10</div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th style="width: 20%;">Phần bài tập</th>
-                    <th style="width: 45%;">Tiêu chí kỹ thuật</th>
+                    <th style="width: 20%;">Phần bài</th>
+                    <th style="width: 50%;">Tiêu chí kiểm tra</th>
                     <th style="width: 15%; text-align: center;">Điểm đạt</th>
-                    <th style="width: 20%;">Trạng thái</th>
+                    <th style="width: 15%;">Kết quả</th>
                 </tr>
             </thead>
-            <tbody id="criteriaTableBody">
-                <!-- Chi tiết điểm từng bài sẽ xuất hiện ở đây -->
-            </tbody>
+            <tbody id="criteriaTableBody"></tbody>
         </table>
 
         <div class="preview-box">
-            <div class="preview-title">Trực quan giao diện bài làm của học sinh:</div>
+            <div class="preview-title">Trực quan giao diện trang web vừa nộp:</div>
             <iframe id="previewFrame"></iframe>
+        </div>
+
+        <div class="action-area">
+            <button class="btn-save" id="saveBtn" onclick="saveToSystem()">Xác nhận & Lưu điểm + Đẩy file lên Drive</button>
+            <div id="statusMsg" class="msg"></div>
         </div>
     </div>
 </div>
 
 <script>
-function handleFileSelect(event) {
+let gradePayload = null;
+
+function handleFile(event) {
+    const name = document.getElementById('fullname').value.trim();
+    const cls = document.getElementById('className').value.trim();
+
+    if (!name || !cls) {
+        alert("Vui lòng nhập đầy đủ Họ và tên, Lớp trước khi chọn tệp bài làm!");
+        event.target.value = "";
+        return;
+    }
+
     const file = event.target.files[0];
     if (!file) return;
 
+    document.getElementById('displayStudent').textContent = "Học sinh: " + name + " - Lớp: " + cls;
     document.getElementById('fileNameDisplay').textContent = file.name;
-    const reader = new FileReader();
 
-    reader.onload = function(e) {
+    const textReader = new FileReader();
+    textReader.onload = function(e) {
         const fileContent = e.target.result;
-        
-        // Hiển thị bài học sinh lên khung xem trước
-        const iframe = document.getElementById('previewFrame');
-        iframe.srcdoc = fileContent;
-
-        // Phân tích và chấm bài
-        gradeSubmission(fileContent);
+        document.getElementById('previewFrame').srcdoc = fileContent;
+        evaluateCode(fileContent, file.name, name, cls);
     };
-
-    reader.readAsText(file);
+    textReader.readAsText(file);
 }
 
-function gradeSubmission(htmlText) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlText, 'text/html');
+// LOGIC CHẤM ĐIỂM CƠ BẢN, DỄ DÀNG CHO HỌC SINH
+function evaluateCode(htmlContent, fileName, name, cls) {
+    const rawHtml = htmlContent.toLowerCase();
 
-    let totalScore = 0;
+    let scoreB1 = 0, scoreB2 = 0, scoreB3 = 0;
     const details = [];
 
-    function addCriteria(exercise, criteriaName, maxPoints, isPassed, note = '') {
-        const awarded = isPassed ? maxPoints : 0;
-        totalScore += awarded;
-        details.push({
-            exercise,
-            criteriaName,
-            awarded,
-            maxPoints,
-            isPassed,
-            note
-        });
+    function addCheck(ex, name, max, passed, part) {
+        const pts = passed ? max : 0;
+        if (part === 1) scoreB1 += pts;
+        if (part === 2) scoreB2 += pts;
+        if (part === 3) scoreB3 += pts;
+        details.push({ ex, name, pts, max, passed });
     }
 
     // ==========================================
-    // CHẤM BÀI 1: BẢNG DỮ LIỆU (TỐI ĐA 4.0 ĐIỂM)
+    // BÀI 1: BẢNG DỮ LIỆU (TỔNG 4.0 ĐIỂM)
     // ==========================================
-    const table = doc.querySelector('table');
-    const hasTable = !!table;
-    const caption = doc.querySelector('table caption');
-    const hasCaption = !!caption && caption.textContent.trim().length > 0;
-    const tableBorder = table && (table.getAttribute('border') || table.getAttribute('style')?.includes('border'));
+    // 1. Thẻ table, caption và viền bảng (1.0 đ)
+    const hasTable = rawHtml.includes('<table');
+    const hasCaption = rawHtml.includes('<caption') && rawHtml.includes('kết quả đánh giá');
+    const hasBorder = rawHtml.includes('border=') || rawHtml.includes('border:');
+    addCheck('Bài 1: Bảng', 'Thẻ <table>, <caption> và viền khung', 1.0, (hasTable && hasCaption && hasBorder), 1);
 
-    // 1. Cấu trúc khung bảng & Caption (1.0 đ)
-    const b1_c1 = hasTable && hasCaption && !!tableBorder;
-    addCriteria('Bài 1: Table', 'Có thẻ <table>, <caption> và định dạng viền bảng', 1.0, b1_c1, 
-        !hasTable ? 'Thiếu thẻ table' : (!hasCaption ? 'Thiếu caption' : (!tableBorder ? 'Chưa tạo viền' : 'Đạt')));
+    // 2. Tiêu đề gộp dòng và gộp cột (1.5 đ)
+    const hasRowspan2 = rawHtml.includes('rowspan="2"') || rawHtml.includes("rowspan='2'") || rawHtml.includes('rowspan=2');
+    const hasColspan3 = rawHtml.includes('colspan="3"') || rawHtml.includes("colspan='3'") || rawHtml.includes('colspan=3');
+    addCheck('Bài 1: Bảng', 'Tiêu đề gộp dòng (rowspan="2") và gộp cột (colspan="3")', 1.5, (hasRowspan2 && hasColspan3), 1);
 
-    // 2. Kỹ thuật gộp ô tiêu đề (rowspan, colspan) (1.5 đ)
-    let b1_c2 = false;
-    if (table) {
-        const rowspans = Array.from(table.querySelectorAll('th, td')).filter(el => el.getAttribute('rowspan') === '2');
-        const colspans3 = Array.from(table.querySelectorAll('th, td')).filter(el => el.getAttribute('colspan') === '3');
-        // Yêu cầu có ít nhất 2 ô rowspan="2" và 1 ô colspan="3"
-        b1_c2 = rowspans.length >= 2 && colspans3.length >= 1;
-    }
-    addCriteria('Bài 1: Table', 'Tiêu đề gộp dòng (rowspan="2") và gộp cột (colspan="3")', 1.5, b1_c2,
-        b1_c2 ? 'Đạt' : 'Chưa thiết lập đúng rowspan="2" hoặc colspan="3" ở tiêu đề');
-
-    // 3. Xử lý ô đặc cách gộp cột (1.5 đ)
-    let b1_c3 = false;
-    if (table) {
-        const colspans2 = Array.from(table.querySelectorAll('td')).filter(el => el.getAttribute('colspan') === '2');
-        const hasTextDacCach = colspans2.some(el => el.textContent.toLowerCase().includes('đặc cách'));
-        b1_c3 = colspans2.length >= 1 && hasTextDacCach;
-    }
-    addCriteria('Bài 1: Table', 'Dòng 2 gộp ô (colspan="2") chứa chữ "Đặc cách"', 1.5, b1_c3,
-        b1_c3 ? 'Đạt' : 'Thiếu ô colspan="2" cho trường hợp Đặc cách');
+    // 3. Dòng 2 gộp ô (chấp nhận cả th và td, chấp nhận chữ viết hoa/thường) (1.5 đ)
+    const hasColspan2 = rawHtml.includes('colspan="2"') || rawHtml.includes("colspan='2'") || rawHtml.includes('colspan=2');
+    const hasDacCach = rawHtml.includes('đặc cách');
+    addCheck('Bài 1: Bảng', 'Dữ liệu hàng 2 gộp ô (colspan="2") chứa "Đặc cách"', 1.5, (hasColspan2 && hasDacCach), 1);
 
 
     // ==========================================
-    // CHẤM BÀI 2: DANH SÁCH CÓ THỨ TỰ (TỐI ĐA 3.0 ĐIỂM)
+    // BÀI 2: DANH SÁCH CÓ THỨ TỰ (TỔNG 3.0 ĐIỂM)
     // ==========================================
-    const ols = Array.from(doc.querySelectorAll('ol'));
-    const sups = Array.from(doc.querySelectorAll('sup'));
-    const subs = Array.from(doc.querySelectorAll('sub'));
+    // 1. La Mã hoa type="I" và số mũ <sup> (0.75 đ)
+    const hasTypeI = rawHtml.includes('type="i"') || rawHtml.includes("type='i'") || rawHtml.includes('type=i');
+    const hasSup = rawHtml.includes('<sup');
+    addCheck('Bài 2: Có thứ tự', 'Đánh số La Mã (<ol type="I">) và số mũ (<sup>)', 0.75, (hasTypeI && hasSup), 2);
 
-    // 1. Đánh số La Mã type="I" & thẻ mũ sup (0.75 đ)
-    const hasTypeI = ols.some(ol => ol.getAttribute('type') === 'I');
-    const hasSup = sups.length > 0;
-    const b2_c1 = hasTypeI && hasSup;
-    addCriteria('Bài 2: Ordered List', 'Dùng thẻ <ol type="I"> và thẻ <sup> hiển thị số mũ ax²', 0.75, b2_c1,
-        b2_c1 ? 'Đạt' : 'Chưa có type="I" hoặc thiếu thẻ <sup>');
+    // 2. Danh sách con type="a" và chỉ số dưới <sub> (1.0 đ)
+    const hasTypeA = rawHtml.includes('type="a"') || rawHtml.includes("type='a'") || rawHtml.includes('type=a');
+    const hasSub = rawHtml.includes('<sub');
+    addCheck('Bài 2: Có thứ tự', 'Danh sách con <ol type="a"> lồng bên trong và chỉ số dưới (<sub>)', 1.0, (hasTypeA && hasSub), 2);
 
-    // 2. Danh sách lồng cấp 2 type="a" & thẻ chỉ số sub (1.0 đ)
-    const hasTypeA = ols.some(ol => ol.getAttribute('type') === 'a');
-    const hasSub = subs.length > 0;
-    const b2_c2 = hasTypeA && hasSub;
-    addCriteria('Bài 2: Ordered List', 'Danh sách con <ol type="a"> lồng bên trong & thẻ <sub> (x₁, x₂)', 1.0, b2_c2,
-        b2_c2 ? 'Đạt' : 'Chưa lồng <ol type="a"> hoặc thiếu thẻ <sub>');
-
-    // 3. Thẻ ngắt quãng và thuộc tính đếm tiếp start="3" (1.25 đ)
-    const hasStart3 = ols.some(ol => ol.getAttribute('start') === '3');
-    const hasItalicNote = Array.from(doc.querySelectorAll('p, em, i')).some(el => el.textContent.toLowerCase().includes('lưu ý'));
-    const b2_c3 = hasStart3 && hasItalicNote;
-    addCriteria('Bài 2: Ordered List', 'Đoạn ngắt quãng lưu ý và thuộc tính start="3"', 1.25, b2_c3,
-        b2_c3 ? 'Đạt' : 'Chưa có thuộc tính start="3" hoặc thiếu ghi chú');
+    // 3. Đếm tiếp start="3" và đoạn ghi chú (1.25 đ)
+    const hasStart3 = rawHtml.includes('start="3"') || rawHtml.includes("start='3'") || rawHtml.includes('start=3');
+    const hasNote = rawHtml.includes('lưu ý');
+    addCheck('Bài 2: Có thứ tự', 'Đoạn ngắt quãng lưu ý và thuộc tính start="3"', 1.25, (hasStart3 && hasNote), 2);
 
 
     // ==========================================
-    // CHẤM BÀI 3: DANH SÁCH UL & MÔ TẢ (TỐI ĐA 3.0 ĐIỂM)
+    // BÀI 3: DANH SÁCH UL & MÔ TẢ (TỔNG 3.0 ĐIỂM)
     // ==========================================
-    const uls = Array.from(doc.querySelectorAll('ul'));
-    const dls = Array.from(doc.querySelectorAll('dl'));
-    const dts = Array.from(doc.querySelectorAll('dt'));
-    const dds = Array.from(doc.querySelectorAll('dd'));
-
-    // 1. Danh sách đa cấp với list-style-type: square và circle (1.0 đ)
-    const rawHtml = htmlText.toLowerCase();
+    // 1. Danh sách đa cấp với kiểu square và circle (1.0 đ)
     const hasSquare = rawHtml.includes('square');
     const hasCircle = rawHtml.includes('circle');
-    const b3_c1 = uls.length >= 2 && hasSquare && hasCircle;
-    addCriteria('Bài 3: Unordered & DL', 'Thẻ <ul> đa cấp với kiểu square và circle', 1.0, b3_c1,
-        b3_c1 ? 'Đạt' : 'Thiếu list-style-type square hoặc circle');
+    addCheck('Bài 3: Danh sách & DL', 'Thẻ <ul> đa cấp với kiểu square và circle', 1.0, (hasSquare && hasCircle), 3);
 
-    // 2. Cấu trúc danh sách mô tả <dl>, <dt>, <dd> (1.0 đ)
-    const b3_c2 = dls.length > 0 && dts.length >= 3 && dds.length >= 3;
-    addCriteria('Bài 3: Unordered & DL', 'Cấu trúc danh sách mô tả chuẩn (<dl>, <dt>, <dd>)', 1.0, b3_c2,
-        b3_c2 ? 'Đạt' : 'Chưa đủ bộ 3 thẻ dl, dt, dd cho bảng tra cứu');
+    // 2. Danh sách mô tả dl, dt, dd (1.0 đ)
+    const hasDl = rawHtml.includes('<dl');
+    const hasDt = rawHtml.includes('<dt');
+    const hasDd = rawHtml.includes('<dd');
+    addCheck('Bài 3: Danh sách & DL', 'Cấu trúc danh sách mô tả chuẩn (<dl>, <dt>, <dd>)', 1.0, (hasDl && hasDt && hasDd), 3);
 
-    // 3. Định dạng màu sắc chữ & in nghiêng (1.0 đ)
-    const hasColorBlue = rawHtml.includes('color: blue') || rawHtml.includes('color:blue') || rawHtml.includes('color: #');
-    const hasEmOrI = doc.querySelectorAll('em, i').length > 0;
-    const b3_c3 = hasColorBlue && hasEmOrI;
-    addCriteria('Bài 3: Unordered & DL', 'Thuộc tính style màu sắc (color) kết hợp in nghiêng (em/i)', 1.0, b3_c3,
-        b3_c3 ? 'Đạt' : 'Chưa định dạng màu sắc xanh hoặc in nghiêng');
+    // 3. Màu sắc chữ xanh và in nghiêng (1.0 đ)
+    const hasBlue = rawHtml.includes('blue');
+    const hasItalic = rawHtml.includes('<em') || rawHtml.includes('<i');
+    addCheck('Bài 3: Danh sách & DL', 'Định dạng màu sắc (color: blue) kết hợp in nghiêng (em/i)', 1.0, (hasBlue && hasItalic), 3);
+
 
     // ==========================================
-    // XUẤT BẢNG KẾT QUẢ RA GIAO DIỆN
+    // HIỂN THỊ KẾT QUẢ RA BẢNG
     // ==========================================
-    document.getElementById('finalScore').textContent = totalScore.toFixed(2);
+    const total = scoreB1 + scoreB2 + scoreB3;
+    document.getElementById('totalPoints').textContent = total.toFixed(2);
+
     const tbody = document.getElementById('criteriaTableBody');
     tbody.innerHTML = '';
-
     details.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><strong>${item.exercise}</strong></td>
-            <td>${item.criteriaName}</td>
-            <td style="text-align: center; font-weight: bold;">${item.awarded} / ${item.maxPoints}</td>
-            <td>
-                <span class="${item.isPassed ? 'status-pass' : 'status-fail'}">
-                    ${item.isPassed ? '✓ ' + item.note : '✗ ' + item.note}
-                </span>
-            </td>
+            <td><strong>${item.ex}</strong></td>
+            <td>${item.name}</td>
+            <td style="text-align: center; font-weight: bold;">${item.pts} / ${item.max}</td>
+            <td><span class="${item.passed ? 'status-pass' : 'status-fail'}">${item.passed ? '✓ Đạt' : '✗ Chưa đạt'}</span></td>
         `;
         tbody.appendChild(row);
     });
 
+    const safeName = name.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
+    const formattedFileName = `${cls}_${safeName}.html`;
+
+    gradePayload = {
+        fullname: name,
+        className: cls,
+        fileName: fileName,
+        savedFileName: formattedFileName,
+        htmlContent: htmlContent,
+        scoreB1: scoreB1.toFixed(2),
+        scoreB2: scoreB2.toFixed(2),
+        scoreB3: scoreB3.toFixed(2),
+        totalScore: total.toFixed(2)
+    };
+
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Xác nhận & Lưu điểm + Đẩy file lên Drive";
+    document.getElementById('statusMsg').textContent = "";
     document.getElementById('resultBoard').style.display = 'block';
+}
+
+// LƯU BẰNG GOOGLE SCRIPT NỘI BỘ (KHÔNG BỊ LỖI MẠNG HOẶC CORS)
+function saveToSystem() {
+    if (!gradePayload) return;
+
+    const btn = document.getElementById('saveBtn');
+    const msg = document.getElementById('statusMsg');
+
+    btn.disabled = true;
+    btn.textContent = "Đang lưu dữ liệu...";
+    msg.style.color = "#1a73e8";
+    msg.textContent = "Hệ thống đang ghi nhận điểm vào Google Sheet và lưu file lên Drive...";
+
+    google.script.run
+        .withSuccessHandler(function(response) {
+            if (response.status === "success") {
+                btn.textContent = "Đã lưu thành công";
+                msg.style.color = "#137333";
+                msg.textContent = "✓ Tệp bài làm đã lưu vào Google Drive và điểm đã ghi nhận vào Sheet!";
+            } else {
+                btn.disabled = false;
+                btn.textContent = "Thử lưu lại";
+                msg.style.color = "#d93025";
+                msg.textContent = "Lỗi xử lý: " + response.message;
+            }
+        })
+        .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.textContent = "Thử lưu lại";
+            msg.style.color = "#d93025";
+            msg.textContent = "Lỗi hệ thống: " + err.message;
+        })
+        .processStudentSubmission(gradePayload);
 }
 </script>
 
