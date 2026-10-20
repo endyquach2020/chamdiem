@@ -37,7 +37,7 @@
 <div class="container">
     <h1>Hệ Thống Chấm & Lưu Bài Thực Hành HTML Tự Động</h1>
 
-    <!-- FORM NHẬP THÔNG TIN -->
+    <!-- FORM THÔNG TIN HỌC SINH -->
     <div class="form-row">
         <div class="form-group">
             <label for="fullname">Họ và tên học sinh (*):</label>
@@ -49,14 +49,14 @@
         </div>
     </div>
 
-    <!-- KHU VỰC CHỌN TỆP BÀI LÀM -->
+    <!-- TẢI TỆP -->
     <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         <p style="margin: 0; font-size: 15px;">Nhấp vào đây để chọn tệp HTML (.html, .htm) nộp bài</p>
         <div class="btn-upload">Tải file bài làm</div>
         <input type="file" id="fileInput" accept=".html, .htm" onchange="handleFile(event)">
     </div>
 
-    <!-- KHU VỰC HIỂN THỊ KẾT QUẢ VÀ NÚT LƯU -->
+    <!-- KẾT QUẢ VÀ NÚT LƯU -->
     <div class="score-board" id="resultBoard">
         <div class="summary-card">
             <div>
@@ -70,7 +70,7 @@
             <thead>
                 <tr>
                     <th style="width: 20%;">Phần bài</th>
-                    <th style="width: 50%;">Tiêu chí hiển thị</th>
+                    <th style="width: 50%;">Tiêu chí hiển thị giao diện</th>
                     <th style="width: 15%; text-align: center;">Điểm đạt</th>
                     <th style="width: 15%;">Kết quả</th>
                 </tr>
@@ -118,9 +118,9 @@ function handleFile(event) {
     textReader.readAsText(file);
 }
 
-// LOGIC CHẤM ĐIỂM DỰA HOÀN TOÀN TRÊN GIAO DIỆN HIỂN THỊ
+// LOGIC CHẤM GIAO DIỆN HIỂN THỊ ĐÚNG (KHÔNG CHẤM MÀU SẮC, COI NHƯ ĐEN MẶC ĐỊNH)
 function evaluateCode(htmlContent, fileName, name, cls) {
-    const rawHtml = htmlContent.toLowerCase();
+    const raw = htmlContent.toLowerCase();
 
     let scoreB1 = 0, scoreB2 = 0, scoreB3 = 0;
     const details = [];
@@ -136,63 +136,64 @@ function evaluateCode(htmlContent, fileName, name, cls) {
     // ==========================================
     // BÀI 1: BẢNG DỮ LIỆU (TỔNG 4.0 ĐIỂM)
     // ==========================================
-    // 1. Có bảng và có dòng tiêu đề "Kết quả đánh giá vận động viên" (1.0 đ)
-    const hasTable = rawHtml.includes('<table');
-    const hasCaptionText = rawHtml.includes('kết quả đánh giá vận động viên');
-    addCheck('Bài 1: Bảng', 'Hiển thị tiêu đề "KẾT QUẢ ĐÁNH GIÁ VẬN ĐỘNG VIÊN"', 1.0, (hasTable && hasCaptionText), 1);
+    // 1. Có bảng, có tiêu đề bảng "Kết quả đánh giá vận động viên" và có khung viền (1.0 đ)
+    const hasTable = raw.includes('<table');
+    const hasCaption = raw.includes('kết quả đánh giá vận động viên');
+    const hasBorder = raw.includes('border');
+    addCheck('Bài 1: Bảng', 'Giao diện có bảng, tiêu đề bảng và khung viền', 1.0, (hasTable && hasCaption && hasBorder), 1);
 
-    // 2. Giao diện có gộp ô ở tiêu đề (chỉ cần chứa thuộc tính rowspan và colspan) (1.5 đ)
-    const hasRowspan = rawHtml.includes('rowspan');
-    const hasColspan = rawHtml.includes('colspan');
-    const hasSubHeaders = rawHtml.includes('thể lực') && rawHtml.includes('chiến thuật');
-    addCheck('Bài 1: Bảng', 'Bảng có cấu trúc gộp dòng và gộp cột ở tiêu đề', 1.5, (hasRowspan && hasColspan && hasSubHeaders), 1);
+    // 2. Tiêu đề bảng có cấu trúc gộp hàng (rowspan) và gộp cột (colspan) (1.5 đ)
+    const hasRowspan = raw.includes('rowspan');
+    const hasColspan = raw.includes('colspan');
+    const hasHeaderFields = raw.includes('họ và tên') && raw.includes('thể lực');
+    addCheck('Bài 1: Bảng', 'Tiêu đề hiển thị đúng cấu trúc gộp dòng và gộp cột', 1.5, (hasRowspan && hasColspan && hasHeaderFields), 1);
 
-    // 3. Có hiển thị ô "Đặc cách" gộp cột (1.5 đ)
-    const hasDacCach = rawHtml.includes('đặc cách');
-    addCheck('Bài 1: Bảng', 'Dòng 2 có ô "Đặc cách" được gộp cột', 1.5, (hasDacCach && hasColspan), 1);
+    // 3. Có ô "Đặc cách" được gộp cột trên dòng 2 (1.5 đ)
+    const hasDacCach = raw.includes('đặc cách') && hasColspan;
+    addCheck('Bài 1: Bảng', 'Dòng 2 hiển thị ô "Đặc cách" được gộp cột', 1.5, hasDacCach, 1);
 
 
     // ==========================================
     // BÀI 2: DANH SÁCH CÓ THỨ TỰ (TỔNG 3.0 ĐIỂM)
     // ==========================================
-    // 1. Có danh sách La Mã và số mũ ax² (0.75 đ)
-    const hasOl = rawHtml.includes('<ol');
-    const hasTypeI = rawHtml.includes('type="i"') || rawHtml.includes("type='i'") || rawHtml.includes('type=i');
-    const hasSup = rawHtml.includes('<sup') || rawHtml.includes('ax<sup>2</sup>') || rawHtml.includes('ax2');
-    addCheck('Bài 2: Có thứ tự', 'Có danh sách đánh số La Mã (<ol type="I">) và số mũ (sup)', 0.75, (hasOl && (hasTypeI || rawHtml.includes('khảo sát hệ số')) && hasSup), 2);
+    // 1. Hiển thị danh sách số La Mã (I, II) và biểu thức mũ ax² (0.75 đ)
+    const hasOl = raw.includes('<ol');
+    const hasTypeI = raw.includes('type="i"') || raw.includes("type='i'") || raw.includes('type=i');
+    const hasSup = raw.includes('<sup');
+    addCheck('Bài 2: Có thứ tự', 'Hiển thị danh sách La Mã (I, II...) và số mũ (ax²)', 0.75, (hasOl && (hasTypeI || raw.includes('khảo sát hệ số')) && hasSup), 2);
 
-    // 2. Có danh sách con (a, b, c) và chỉ số dưới x₁, x₂ (1.0 đ)
-    const hasTypeA = rawHtml.includes('type="a"') || rawHtml.includes("type='a'") || rawHtml.includes('type=a');
-    const hasSub = rawHtml.includes('<sub') || rawHtml.includes('x<sub>1</sub>');
-    addCheck('Bài 2: Có thứ tự', 'Có danh sách con (a, b, c) và chỉ số dưới (sub)', 1.0, (hasTypeA || (hasSub && rawHtml.includes('nghiệm kép'))), 2);
+    // 2. Hiển thị danh sách con (a, b, c) và chỉ số dưới x₁, x₂ (1.0 đ)
+    const hasTypeA = raw.includes('type="a"') || raw.includes("type='a'") || raw.includes('type=a');
+    const hasSub = raw.includes('<sub');
+    addCheck('Bài 2: Có thứ tự', 'Hiển thị danh sách con (a, b, c) và chỉ số dưới (x₁, x₂)', 1.0, (hasTypeA && hasSub), 2);
 
-    // 3. Có đoạn ngắt quãng lưu ý và thuộc tính start="3" (1.25 đ)
-    const hasStart3 = rawHtml.includes('start="3"') || rawHtml.includes("start='3'") || rawHtml.includes('start=3');
-    const hasNote = rawHtml.includes('lưu ý') || rawHtml.includes('kiểm tra lại');
-    addCheck('Bài 2: Có thứ tự', 'Có đoạn ghi chú ngắt quãng và đếm tiếp tục', 1.25, (hasStart3 || hasNote), 2);
+    // 3. Hiển thị đoạn ngắt quãng lưu ý in nghiêng và đếm tiếp tục từ III (1.25 đ)
+    const hasStart = raw.includes('start=');
+    const hasNote = raw.includes('lưu ý') || raw.includes('kiểm tra lại');
+    const hasItalic = raw.includes('<em') || raw.includes('<i');
+    addCheck('Bài 2: Có thứ tự', 'Đoạn ngắt quãng in nghiêng và đánh số tiếp nối', 1.25, ((hasStart || hasNote) && hasItalic), 2);
 
 
     // ==========================================
     // BÀI 3: DANH SÁCH UL & MÔ TẢ (TỔNG 3.0 ĐIỂM)
     // ==========================================
-    // 1. Có danh sách không thứ tự (ul) lồng nhau (1.0 đ)
-    const hasUl = rawHtml.includes('<ul');
-    const hasAiText = rawHtml.includes('công nghệ và trí tuệ nhân tạo');
-    addCheck('Bài 3: Danh sách & DL', 'Hiển thị danh sách không có thứ tự lồng nhau', 1.0, (hasUl && hasAiText), 3);
+    // 1. Hiển thị danh sách không có thứ tự lồng nhau (1.0 đ)
+    const hasUl = raw.includes('<ul');
+    const hasTopics = raw.includes('trí tuệ nhân tạo') && raw.includes('mạng máy tính');
+    addCheck('Bài 3: Danh sách & DL', 'Hiển thị danh sách không có thứ tự lồng nhau', 1.0, (hasUl && hasTopics), 3);
 
-    // 2. Có danh sách mô tả giải thích thuật ngữ (1.0 đ)
-    const hasDl = rawHtml.includes('<dl') || rawHtml.includes('<dt') || rawHtml.includes('<dd');
-    const hasGlossary = rawHtml.includes('ai') && rawHtml.includes('internet') && rawHtml.includes('html5');
-    addCheck('Bài 3: Danh sách & DL', 'Có danh sách tra cứu các thuật ngữ AI, Internet, HTML5', 1.0, (hasDl || hasGlossary), 3);
+    // 2. Hiển thị danh sách tra cứu định nghĩa các thuật ngữ (1.0 đ)
+    const hasDl = raw.includes('<dl') || (raw.includes('<dt') && raw.includes('<dd'));
+    const hasTerms = raw.includes('ai') && raw.includes('internet') && raw.includes('html5');
+    addCheck('Bài 3: Danh sách & DL', 'Hiển thị danh sách tra cứu các thuật ngữ (AI, Internet, HTML5)', 1.0, (hasDl || hasTerms), 3);
 
-    // 3. Có chữ màu xanh hoặc in nghiêng (1.0 đ)
-    const hasBlue = rawHtml.includes('blue') || rawHtml.includes('rgb(');
-    const hasItalic = rawHtml.includes('<em') || rawHtml.includes('<i');
-    addCheck('Bài 3: Danh sách & DL', 'Có chữ màu xanh (blue) và in nghiêng', 1.0, (hasBlue || hasItalic), 3);
+    // 3. Sử dụng đúng định dạng nhấn mạnh văn bản (in đậm tiêu đề/mục) (1.0 đ)
+    const hasBold = raw.includes('<strong') || raw.includes('<b');
+    addCheck('Bài 3: Danh sách & DL', 'Sử dụng định dạng nhấn mạnh cho các mục tiêu đề (strong/b)', 1.0, hasBold, 3);
 
 
     // ==========================================
-    // TÍNH ĐIỂM VÀ HIỂN THỊ
+    // TÍNH ĐIỂM & ĐỔ DỮ LIỆU
     // ==========================================
     const total = scoreB1 + scoreB2 + scoreB3;
     document.getElementById('totalPoints').textContent = total.toFixed(2);
@@ -232,7 +233,7 @@ function evaluateCode(htmlContent, fileName, name, cls) {
     document.getElementById('resultBoard').style.display = 'block';
 }
 
-// LƯU TRỰC TIẾP QUA GOOGLE SCRIPT NỘI BỘ (KHÔNG BỊ LỖI MẠNG)
+// LƯU NỘI BỘ QUA GOOGLE SCRIPT (CHẠY ỔN ĐỊNH 100%, KHÔNG LỖI MẠNG)
 function saveToSystem() {
     if (!gradePayload) return;
 
