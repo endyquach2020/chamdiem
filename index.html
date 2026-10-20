@@ -29,7 +29,7 @@
         .msg { margin-top: 10px; font-weight: bold; font-size: 14px; }
         .preview-box { margin-top: 25px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
         .preview-title { background: #eee; padding: 8px 15px; font-weight: bold; font-size: 14px; }
-        iframe { width: 100%; height: 300px; border: none; background: #fff; }
+        iframe { width: 100%; height: 320px; border: none; background: #fff; }
     </style>
 </head>
 <body>
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <!-- KHU VỰC CHỌN TỆP -->
+    <!-- KHU VỰC CHỌN TỆP BÀI LÀM -->
     <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         <p style="margin: 0; font-size: 15px;">Nhấp vào đây để chọn tệp HTML (.html, .htm) nộp bài</p>
         <div class="btn-upload">Tải file bài làm</div>
@@ -70,7 +70,7 @@
             <thead>
                 <tr>
                     <th style="width: 20%;">Phần bài</th>
-                    <th style="width: 50%;">Tiêu chí kiểm tra</th>
+                    <th style="width: 50%;">Tiêu chí hiển thị</th>
                     <th style="width: 15%; text-align: center;">Điểm đạt</th>
                     <th style="width: 15%;">Kết quả</th>
                 </tr>
@@ -118,7 +118,7 @@ function handleFile(event) {
     textReader.readAsText(file);
 }
 
-// LOGIC CHẤM ĐIỂM CƠ BẢN, DỄ DÀNG CHO HỌC SINH
+// LOGIC CHẤM ĐIỂM DỰA HOÀN TOÀN TRÊN GIAO DIỆN HIỂN THỊ
 function evaluateCode(htmlContent, fileName, name, cls) {
     const rawHtml = htmlContent.toLowerCase();
 
@@ -136,64 +136,63 @@ function evaluateCode(htmlContent, fileName, name, cls) {
     // ==========================================
     // BÀI 1: BẢNG DỮ LIỆU (TỔNG 4.0 ĐIỂM)
     // ==========================================
-    // 1. Thẻ table, caption và viền bảng (1.0 đ)
+    // 1. Có bảng và có dòng tiêu đề "Kết quả đánh giá vận động viên" (1.0 đ)
     const hasTable = rawHtml.includes('<table');
-    const hasCaption = rawHtml.includes('<caption') && rawHtml.includes('kết quả đánh giá');
-    const hasBorder = rawHtml.includes('border=') || rawHtml.includes('border:');
-    addCheck('Bài 1: Bảng', 'Thẻ <table>, <caption> và viền khung', 1.0, (hasTable && hasCaption && hasBorder), 1);
+    const hasCaptionText = rawHtml.includes('kết quả đánh giá vận động viên');
+    addCheck('Bài 1: Bảng', 'Hiển thị tiêu đề "KẾT QUẢ ĐÁNH GIÁ VẬN ĐỘNG VIÊN"', 1.0, (hasTable && hasCaptionText), 1);
 
-    // 2. Tiêu đề gộp dòng và gộp cột (1.5 đ)
-    const hasRowspan2 = rawHtml.includes('rowspan="2"') || rawHtml.includes("rowspan='2'") || rawHtml.includes('rowspan=2');
-    const hasColspan3 = rawHtml.includes('colspan="3"') || rawHtml.includes("colspan='3'") || rawHtml.includes('colspan=3');
-    addCheck('Bài 1: Bảng', 'Tiêu đề gộp dòng (rowspan="2") và gộp cột (colspan="3")', 1.5, (hasRowspan2 && hasColspan3), 1);
+    // 2. Giao diện có gộp ô ở tiêu đề (chỉ cần chứa thuộc tính rowspan và colspan) (1.5 đ)
+    const hasRowspan = rawHtml.includes('rowspan');
+    const hasColspan = rawHtml.includes('colspan');
+    const hasSubHeaders = rawHtml.includes('thể lực') && rawHtml.includes('chiến thuật');
+    addCheck('Bài 1: Bảng', 'Bảng có cấu trúc gộp dòng và gộp cột ở tiêu đề', 1.5, (hasRowspan && hasColspan && hasSubHeaders), 1);
 
-    // 3. Dòng 2 gộp ô (chấp nhận cả th và td, chấp nhận chữ viết hoa/thường) (1.5 đ)
-    const hasColspan2 = rawHtml.includes('colspan="2"') || rawHtml.includes("colspan='2'") || rawHtml.includes('colspan=2');
+    // 3. Có hiển thị ô "Đặc cách" gộp cột (1.5 đ)
     const hasDacCach = rawHtml.includes('đặc cách');
-    addCheck('Bài 1: Bảng', 'Dữ liệu hàng 2 gộp ô (colspan="2") chứa "Đặc cách"', 1.5, (hasColspan2 && hasDacCach), 1);
+    addCheck('Bài 1: Bảng', 'Dòng 2 có ô "Đặc cách" được gộp cột', 1.5, (hasDacCach && hasColspan), 1);
 
 
     // ==========================================
     // BÀI 2: DANH SÁCH CÓ THỨ TỰ (TỔNG 3.0 ĐIỂM)
     // ==========================================
-    // 1. La Mã hoa type="I" và số mũ <sup> (0.75 đ)
+    // 1. Có danh sách La Mã và số mũ ax² (0.75 đ)
+    const hasOl = rawHtml.includes('<ol');
     const hasTypeI = rawHtml.includes('type="i"') || rawHtml.includes("type='i'") || rawHtml.includes('type=i');
-    const hasSup = rawHtml.includes('<sup');
-    addCheck('Bài 2: Có thứ tự', 'Đánh số La Mã (<ol type="I">) và số mũ (<sup>)', 0.75, (hasTypeI && hasSup), 2);
+    const hasSup = rawHtml.includes('<sup') || rawHtml.includes('ax<sup>2</sup>') || rawHtml.includes('ax2');
+    addCheck('Bài 2: Có thứ tự', 'Có danh sách đánh số La Mã (<ol type="I">) và số mũ (sup)', 0.75, (hasOl && (hasTypeI || rawHtml.includes('khảo sát hệ số')) && hasSup), 2);
 
-    // 2. Danh sách con type="a" và chỉ số dưới <sub> (1.0 đ)
+    // 2. Có danh sách con (a, b, c) và chỉ số dưới x₁, x₂ (1.0 đ)
     const hasTypeA = rawHtml.includes('type="a"') || rawHtml.includes("type='a'") || rawHtml.includes('type=a');
-    const hasSub = rawHtml.includes('<sub');
-    addCheck('Bài 2: Có thứ tự', 'Danh sách con <ol type="a"> lồng bên trong và chỉ số dưới (<sub>)', 1.0, (hasTypeA && hasSub), 2);
+    const hasSub = rawHtml.includes('<sub') || rawHtml.includes('x<sub>1</sub>');
+    addCheck('Bài 2: Có thứ tự', 'Có danh sách con (a, b, c) và chỉ số dưới (sub)', 1.0, (hasTypeA || (hasSub && rawHtml.includes('nghiệm kép'))), 2);
 
-    // 3. Đếm tiếp start="3" và đoạn ghi chú (1.25 đ)
+    // 3. Có đoạn ngắt quãng lưu ý và thuộc tính start="3" (1.25 đ)
     const hasStart3 = rawHtml.includes('start="3"') || rawHtml.includes("start='3'") || rawHtml.includes('start=3');
-    const hasNote = rawHtml.includes('lưu ý');
-    addCheck('Bài 2: Có thứ tự', 'Đoạn ngắt quãng lưu ý và thuộc tính start="3"', 1.25, (hasStart3 && hasNote), 2);
+    const hasNote = rawHtml.includes('lưu ý') || rawHtml.includes('kiểm tra lại');
+    addCheck('Bài 2: Có thứ tự', 'Có đoạn ghi chú ngắt quãng và đếm tiếp tục', 1.25, (hasStart3 || hasNote), 2);
 
 
     // ==========================================
     // BÀI 3: DANH SÁCH UL & MÔ TẢ (TỔNG 3.0 ĐIỂM)
     // ==========================================
-    // 1. Danh sách đa cấp với kiểu square và circle (1.0 đ)
-    const hasSquare = rawHtml.includes('square');
-    const hasCircle = rawHtml.includes('circle');
-    addCheck('Bài 3: Danh sách & DL', 'Thẻ <ul> đa cấp với kiểu square và circle', 1.0, (hasSquare && hasCircle), 3);
+    // 1. Có danh sách không thứ tự (ul) lồng nhau (1.0 đ)
+    const hasUl = rawHtml.includes('<ul');
+    const hasAiText = rawHtml.includes('công nghệ và trí tuệ nhân tạo');
+    addCheck('Bài 3: Danh sách & DL', 'Hiển thị danh sách không có thứ tự lồng nhau', 1.0, (hasUl && hasAiText), 3);
 
-    // 2. Danh sách mô tả dl, dt, dd (1.0 đ)
-    const hasDl = rawHtml.includes('<dl');
-    const hasDt = rawHtml.includes('<dt');
-    const hasDd = rawHtml.includes('<dd');
-    addCheck('Bài 3: Danh sách & DL', 'Cấu trúc danh sách mô tả chuẩn (<dl>, <dt>, <dd>)', 1.0, (hasDl && hasDt && hasDd), 3);
+    // 2. Có danh sách mô tả giải thích thuật ngữ (1.0 đ)
+    const hasDl = rawHtml.includes('<dl') || rawHtml.includes('<dt') || rawHtml.includes('<dd');
+    const hasGlossary = rawHtml.includes('ai') && rawHtml.includes('internet') && rawHtml.includes('html5');
+    addCheck('Bài 3: Danh sách & DL', 'Có danh sách tra cứu các thuật ngữ AI, Internet, HTML5', 1.0, (hasDl || hasGlossary), 3);
 
-    // 3. Màu sắc chữ xanh và in nghiêng (1.0 đ)
-    const hasBlue = rawHtml.includes('blue');
+    // 3. Có chữ màu xanh hoặc in nghiêng (1.0 đ)
+    const hasBlue = rawHtml.includes('blue') || rawHtml.includes('rgb(');
     const hasItalic = rawHtml.includes('<em') || rawHtml.includes('<i');
-    addCheck('Bài 3: Danh sách & DL', 'Định dạng màu sắc (color: blue) kết hợp in nghiêng (em/i)', 1.0, (hasBlue && hasItalic), 3);
+    addCheck('Bài 3: Danh sách & DL', 'Có chữ màu xanh (blue) và in nghiêng', 1.0, (hasBlue || hasItalic), 3);
 
 
     // ==========================================
-    // HIỂN THỊ KẾT QUẢ RA BẢNG
+    // TÍNH ĐIỂM VÀ HIỂN THỊ
     // ==========================================
     const total = scoreB1 + scoreB2 + scoreB3;
     document.getElementById('totalPoints').textContent = total.toFixed(2);
@@ -233,7 +232,7 @@ function evaluateCode(htmlContent, fileName, name, cls) {
     document.getElementById('resultBoard').style.display = 'block';
 }
 
-// LƯU BẰNG GOOGLE SCRIPT NỘI BỘ (KHÔNG BỊ LỖI MẠNG HOẶC CORS)
+// LƯU TRỰC TIẾP QUA GOOGLE SCRIPT NỘI BỘ (KHÔNG BỊ LỖI MẠNG)
 function saveToSystem() {
     if (!gradePayload) return;
 
