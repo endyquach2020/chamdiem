@@ -3,268 +3,762 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm & Lưu Bài Thực Hành HTML</title>
+    <title>Hệ Thống Nộp & Chấm Bài Thực Hành HTML Tự Động</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 920px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        h1 { color: #1a73e8; text-align: center; margin-bottom: 25px; text-transform: uppercase; font-size: 21px; }
-        .form-row { display: flex; gap: 15px; margin-bottom: 20px; }
-        .form-group { flex: 1; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 15px; }
-        .upload-box { border: 2px dashed #1a73e8; padding: 25px; text-align: center; border-radius: 6px; background: #f8fbff; cursor: pointer; margin-bottom: 20px; }
-        .upload-box input { display: none; }
-        .btn-upload { background-color: #1a73e8; color: white; padding: 8px 18px; border-radius: 4px; display: inline-block; font-weight: bold; margin-top: 8px; }
-        .score-board { display: none; margin-top: 25px; }
-        .summary-card { background-color: #e8f0fe; border-left: 6px solid #1a73e8; padding: 15px 20px; margin-bottom: 20px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .points { font-size: 32px; font-weight: bold; color: #d93025; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; }
-        th { background-color: #f1f3f4; }
-        .status-pass { color: #137333; font-weight: bold; }
-        .status-fail { color: #d93025; font-weight: bold; }
-        .action-area { text-align: center; margin-top: 20px; padding: 15px; background-color: #fafafa; border: 1px solid #eee; border-radius: 6px; }
-        .btn-save { background-color: #34a853; color: white; border: none; padding: 12px 28px; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-save:disabled { background-color: #9e9e9e; cursor: not-allowed; }
-        .msg { margin-top: 10px; font-weight: bold; font-size: 14px; }
-        .preview-box { margin-top: 25px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-        .preview-title { background: #eee; padding: 8px 15px; font-weight: bold; font-size: 14px; }
-        iframe { width: 100%; height: 320px; border: none; background: #fff; }
+        :root {
+            --primary: #1a73e8;
+            --primary-hover: #1557b0;
+            --success: #1e8e3e;
+            --danger: #d93025;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --border: #dadce0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #202124;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+        }
+        .header h1 { color: var(--primary); font-size: 22px; margin-bottom: 5px; }
+        .header p { color: #5f6368; font-size: 13.5px; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 20px;
+            max-width: 1450px;
+            margin: 0 auto;
+        }
+        @media (max-width: 992px) { .layout { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .card h2 {
+            font-size: 16px;
+            color: #202124;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        select, input[type="text"] {
+            padding: 8px 12px;
+            font-size: 13.5px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            outline: none;
+            background: #fff;
+        }
+        select {
+            cursor: pointer;
+            font-weight: 500;
+        }
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+        }
+
+        button.btn-submit {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        button.btn-submit:hover {
+            background: var(--primary-hover);
+        }
+        button.btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .drop-zone {
+            border: 2px dashed #1a73e8;
+            border-radius: 8px;
+            padding: 26px 20px;
+            text-align: center;
+            background-color: #f1f8fe;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 15px;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            background-color: #e3effd;
+            border-color: #1557b0;
+        }
+        .drop-zone svg {
+            width: 44px;
+            height: 44px;
+            fill: #1a73e8;
+            margin-bottom: 6px;
+        }
+        .drop-zone .title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 4px;
+        }
+        .drop-zone .subtitle {
+            font-size: 12.5px;
+            color: #5f6368;
+        }
+        .drop-zone .file-name {
+            margin-top: 8px;
+            display: inline-block;
+            background: #ffffff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #1e8e3e;
+            border: 1px solid #ceead6;
+            font-size: 13px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 380px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .score-box {
+            background: #e8f0fe;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+        .score-val {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .badge {
+            font-size: 13.5px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .badge-pass { background: #ceead6; color: var(--success); }
+        .badge-fail { background: #fad2cf; color: var(--danger); }
+
+        .crit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+        .crit-item {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .crit-item.pass {
+            background: #f6fbf7;
+            border-left: 4px solid var(--success);
+        }
+        .crit-item.fail {
+            background: #fdf7f7;
+            border-left: 4px solid var(--danger);
+        }
+        .crit-info { max-width: 80%; }
+        .crit-title { font-weight: 600; margin-bottom: 2px; }
+        .crit-desc { font-size: 11.5px; color: #5f6368; }
+        .crit-score { font-weight: bold; font-size: 13.5px; }
+        .crit-score.pass { color: var(--success); }
+        .crit-score.fail { color: var(--danger); }
+
+        .submit-status {
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        .status-loading { background: #feefe3; color: #b06000; display: block; }
+        .status-success { background: #e6f4ea; color: #137333; display: block; }
+        .status-error { background: #fce8e6; color: #c5221f; display: block; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Hệ Thống Chấm & Lưu Bài Thực Hành HTML Tự Động</h1>
+<div class="header">
+    <h1>HỆ THỐNG NỘP & CHẤM BÀI THỰC HÀNH HTML TỰ ĐỘNG</h1>
+    <p>Tải file xem điểm tức thì - Nhập họ tên và nhấn "Nộp bài" để lưu kết quả vào Google Sheets & Drive</p>
+</div>
 
-    <!-- FORM THÔNG TIN HỌC SINH -->
-    <div class="form-row">
-        <div class="form-group">
-            <label for="fullname">Họ và tên học sinh (*):</label>
-            <input type="text" id="fullname" placeholder="Ví dụ: Nguyễn Văn An">
+<div class="layout">
+    <div class="card">
+        <h2>
+            <span>Khu vực nộp bài của học sinh</span>
+            <span style="font-size: 12px; color: #5f6368;">Hỗ trợ .html, .htm</span>
+        </h2>
+
+        <div class="controls">
+            <label for="deSelect"><b>Mã đề thi:</b></label>
+            <select id="deSelect" onchange="onDeChange()">
+                <option value="1">Đề 1: Đánh giá thể thao</option>
+                <option value="2">Đề 2: Điểm kiểm tra định kỳ</option>
+                <option value="3">Đề 3: Cuộc thi Robotics</option>
+                <option value="4">Đề 4: Nề nếp & Phòng máy</option>
+                <option value="5">Đề 5: Phỏng vấn Câu lạc bộ</option>
+                <option value="6">Đề 6: Mượn sách thư viện</option>
+                <option value="7" selected>Đề 7: Thi đấu cờ vua</option>
+                <option value="8">Đề 8: Ngày hội STEM</option>
+                <option value="9">Đề 9: Khảo sát An toàn mạng</option>
+                <option value="10">Đề 10: Xây dựng không gian xanh</option>
+            </select>
         </div>
-        <div class="form-group" style="flex: 0.6;">
-            <label for="className">Lớp (*):</label>
-            <input type="text" id="className" placeholder="Ví dụ: 12A1">
+
+        <div class="controls">
+            <label for="studentName"><b>Họ và tên:</b></label>
+            <input type="text" id="studentName" placeholder="Nhập đầy đủ Họ và tên học sinh để nộp bài...">
+            <button class="btn-submit" id="btnSubmit" onclick="submitToGoogle()">
+                <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                Nộp bài
+            </button>
         </div>
+
+        <div id="submitStatus" class="submit-status"></div>
+
+        <input type="file" id="fileInput" accept=".html,.htm" style="display:none;" onchange="onFileUploaded(event)">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <div class="title">Bấm vào đây để chọn tệp bài làm (.html)</div>
+            <div class="subtitle">hoặc kéo và thả tệp HTML vào đây để xem trước kết quả</div>
+            <div id="selectedFileName" class="file-name" style="display:none;"></div>
+        </div>
+
+        <h2 style="margin-top: 15px; font-size: 14.5px;">Giao diện bài làm thực tế (Preview)</h2>
+        <iframe id="preview"></iframe>
     </div>
 
-    <!-- TẢI TỆP -->
-    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-        <p style="margin: 0; font-size: 15px;">Nhấp vào đây để chọn tệp HTML (.html, .htm) nộp bài</p>
-        <div class="btn-upload">Tải file bài làm</div>
-        <input type="file" id="fileInput" accept=".html, .htm" onchange="handleFile(event)">
-    </div>
+    <div class="card">
+        <h2>
+            <span>Kết quả thẩm định cấu trúc</span>
+            <span id="gradeTime" style="font-size: 11.5px; color: #777;">Chờ tải bài</span>
+        </h2>
 
-    <!-- KẾT QUẢ VÀ NÚT LƯU -->
-    <div class="score-board" id="resultBoard">
-        <div class="summary-card">
+        <div class="score-box">
             <div>
-                <h3 style="margin: 0;" id="displayStudent">Học sinh: </h3>
-                <p style="margin: 5px 0 0; color: #555;">Tệp bài làm: <span id="fileNameDisplay" style="font-weight: bold;"></span></p>
+                <div style="font-size: 12px; color: #5f6368;">ĐIỂM TỔNG KẾT</div>
+                <div class="score-val" id="totalScore">0.0 <span style="font-size: 18px; color:#5f6368;">/ 10</span></div>
             </div>
-            <div class="points"><span id="totalPoints">0</span> / 10</div>
+            <div id="statusBadge" class="badge badge-fail">Chưa nộp bài</div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 20%;">Phần bài</th>
-                    <th style="width: 50%;">Tiêu chí hiển thị giao diện</th>
-                    <th style="width: 15%; text-align: center;">Điểm đạt</th>
-                    <th style="width: 15%;">Kết quả</th>
-                </tr>
-            </thead>
-            <tbody id="criteriaTableBody"></tbody>
-        </table>
-
-        <div class="preview-box">
-            <div class="preview-title">Trực quan giao diện trang web vừa nộp:</div>
-            <iframe id="previewFrame"></iframe>
-        </div>
-
-        <div class="action-area">
-            <button class="btn-save" id="saveBtn" onclick="saveToSystem()">Xác nhận & Lưu điểm + Đẩy file lên Drive</button>
-            <div id="statusMsg" class="msg"></div>
+        <div class="crit-list" id="critContainer">
+            <p style="color:#777; font-size:13px; text-align:center; padding: 20px;">Vui lòng chọn hoặc kéo thả tệp bài làm để xem kết quả đánh giá.</p>
         </div>
     </div>
 </div>
 
 <script>
-let gradePayload = null;
+const GOOGLE_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzscizCX4Gz5LfOXym3YhMw9aext4esgmYVbC6C5fzwAnpDTn-APxXH5kaC0hyRKVQ2mA/exec";
 
-function handleFile(event) {
-    const name = document.getElementById('fullname').value.trim();
-    const cls = document.getElementById('className').value.trim();
+let currentFileContent = "";
+let currentFileName = "";
+let latestGradeResult = null;
 
-    if (!name || !cls) {
-        alert("Vui lòng nhập đầy đủ Họ và tên, Lớp trước khi chọn tệp bài làm!");
-        event.target.value = "";
+const DE_RULES = {
+    1: { title: "Đề 1", tableType: "COLSPAN_DATA", colSpanTarget: 2, olExpected: ["I", "upper-roman"], ulInOlExpected: ["disc", "circle"], ulExpected: ["square"], olInUlExpected: ["1", "decimal", "a", "lower-alpha"] },
+    2: { title: "Đề 2", tableType: "ROWSPAN_DATA", dataRowspan: 2, olExpected: ["1", "decimal"], ulInOlExpected: ["square", "disc"], ulExpected: ["disc"], olInUlExpected: ["I", "upper-roman", "1", "decimal"] },
+    3: { title: "Đề 3", tableType: "COLSPAN_DATA", colSpanTarget: 2, olExpected: ["A", "upper-alpha"], ulInOlExpected: ["circle", "disc"], ulExpected: ["circle"], olInUlExpected: ["1", "decimal", "a", "lower-alpha"] },
+    4: { title: "Đề 4", tableType: "ROWSPAN_DATA", dataRowspan: 2, olExpected: ["I", "upper-roman"], ulInOlExpected: ["disc", "circle"], ulExpected: ["square"], olInUlExpected: ["1", "decimal"] },
+    5: { title: "Đề 5", tableType: "COLSPAN_DATA", colSpanTarget: 2, olExpected: ["1", "decimal"], ulInOlExpected: ["circle", "disc"], ulExpected: ["disc"], olInUlExpected: ["A", "upper-alpha"] },
+    6: { title: "Đề 6", tableType: "COLSPAN_DATA", colSpanTarget: 2, olExpected: ["1", "decimal"], ulInOlExpected: ["disc", "circle"], ulExpected: ["square"], olInUlExpected: ["I", "upper-roman"] },
+    7: { title: "Đề 7", tableType: "ROWSPAN_DATA", dataRowspan: 2, olExpected: ["A", "upper-alpha"], ulInOlExpected: ["disc", "circle"], ulExpected: ["disc"], olInUlExpected: ["1", "decimal"] },
+    8: { title: "Đề 8", tableType: "COLSPAN_DATA", colSpanTarget: 2, olExpected: ["I", "upper-roman"], ulInOlExpected: ["square", "disc"], ulExpected: ["circle"], olInUlExpected: ["a", "lower-alpha", "A", "upper-alpha"] },
+    9: { title: "Đề 9", tableType: "ROWSPAN_DATA", dataRowspan: 2, olExpected: ["1", "decimal"], ulInOlExpected: ["circle", "disc"], ulExpected: ["square"], olInUlExpected: ["1", "decimal"] },
+    10: { title: "Đề 10", tableType: "COLSPAN_DATA", colSpanTarget: 2, olExpected: ["A", "upper-alpha"], ulInOlExpected: ["disc", "circle"], ulExpected: ["disc"], olInUlExpected: ["I", "upper-roman"] }
+};
+
+function getListType(element) {
+    if (!element) return "";
+    const attrType = element.getAttribute("type");
+    if (attrType) return attrType.trim();
+
+    const styleAttr = element.getAttribute("style");
+    if (styleAttr) {
+        const matchType = styleAttr.match(/list-style-type\s*:\s*([^;]+)/i);
+        if (matchType) return matchType[1].trim();
+        const matchShorthand = styleAttr.match(/list-style\s*:\s*([^;]+)/i);
+        if (matchShorthand) return matchShorthand[1].trim();
+    }
+
+    const firstLi = element.querySelector("li");
+    if (firstLi) {
+        const liType = firstLi.getAttribute("type");
+        if (liType) return liType.trim();
+        const liStyle = firstLi.getAttribute("style");
+        if (liStyle) {
+            const match = liStyle.match(/list-style(-type)?\s*:\s*([^;]+)/i);
+            if (match) return match[2].trim();
+        }
+    }
+    return "";
+}
+
+function normalizeType(str) {
+    if (!str) return "";
+    str = str.toLowerCase().replace(/['"]/g, '').trim();
+    const map = {
+        '1': 'decimal', 'decimal': 'decimal',
+        'i': 'upper-roman', 'upper-roman': 'upper-roman', 'lower-roman': 'lower-roman',
+        'a': 'lower-alpha', 'lower-alpha': 'lower-alpha',
+        'upper-alpha': 'upper-alpha',
+        'disc': 'disc', 'circle': 'circle', 'square': 'square'
+    };
+    if (str === 'a' || str === 'lower-alpha') return 'lower-alpha';
+    if (str === 'A' || str === 'upper-alpha') return 'upper-alpha';
+    if (str === 'i' || str === 'lower-roman') return 'lower-roman';
+    if (str === 'I' || str === 'upper-roman') return 'upper-roman';
+    return map[str] || str;
+}
+
+function isTypeMatch(actualVal, expectedList) {
+    if (!actualVal) return false;
+    const normalizedActual = normalizeType(actualVal);
+    return expectedList.some(exp => normalizeType(exp) === normalizedActual);
+}
+
+function onDeChange() {
+    if (currentFileContent) {
+        gradeCurrentCode();
+    }
+}
+
+function processUploadedFile(file) {
+    if (!file) return;
+    currentFileName = file.name;
+    const nameLabel = document.getElementById('selectedFileName');
+    nameLabel.style.display = "inline-block";
+    nameLabel.innerText = "📄 Đang chấm tệp: " + file.name;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        currentFileContent = evt.target.result;
+        gradeCurrentCode();
+    };
+    reader.readAsText(file, "UTF-8");
+}
+
+function onFileUploaded(e) {
+    const file = e.target.files[0];
+    processUploadedFile(file);
+}
+
+const dropZone = document.getElementById('dropZone');
+['dragenter', 'dragover'].forEach(name => {
+    dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    }, false);
+});
+['dragleave', 'drop'].forEach(name => {
+    dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    }, false);
+});
+dropZone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length > 0) {
+        processUploadedFile(files[0]);
+    }
+});
+
+function evaluateStrict(rawHtml, deId) {
+    const rule = DE_RULES[deId] || DE_RULES[1];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHtml, "text/html");
+
+    const crits = [];
+    let b1 = 0, b2 = 0, b3 = 0;
+
+    /* BÀI 1: BẢNG (4đ) */
+    const tables = doc.querySelectorAll("table");
+    const hasTable = tables.length > 0;
+    
+    let trCount = 0;
+    if (hasTable) {
+        tables.forEach(t => trCount = Math.max(trCount, t.querySelectorAll("tr").length));
+    }
+    if (hasTable && trCount >= 3) {
+        b1 += 1.0;
+        crits.push({
+            name: "1.1 Cấu trúc Table cơ bản",
+            desc: `Đã tạo bảng với ${trCount} hàng, đủ cấu trúc thẻ table, tr, th, td.`,
+            pass: true, score: 1.0, max: 1.0
+        });
+    } else {
+        crits.push({
+            name: "1.1 Cấu trúc Table cơ bản",
+            desc: "Chưa tạo bảng hoặc bảng chưa đủ tối thiểu 3-4 dòng như đề bài.",
+            pass: false, score: 0, max: 1.0
+        });
+    }
+
+    let headerHasRowspan = false;
+    let headerHasColspan = false;
+    if (hasTable) {
+        const theadCells = tables[0].querySelectorAll("th, tr:first-child td, tr:nth-child(2) td");
+        theadCells.forEach(cell => {
+            if (cell.getAttribute("rowspan") === "2") headerHasRowspan = true;
+            if (cell.getAttribute("colspan") === "3") headerHasColspan = true;
+        });
+    }
+    if (headerHasRowspan && headerHasColspan) {
+        b1 += 1.5;
+        crits.push({
+            name: "1.2 Trộn ô phần Tiêu đề (Header)",
+            desc: "Tiêu đề đã dùng đúng rowspan=\"2\" cho STT/Tên và colspan=\"3\" cho khối Điểm.",
+            pass: true, score: 1.5, max: 1.5
+        });
+    } else if (headerHasRowspan || headerHasColspan) {
+        b1 += 0.75;
+        crits.push({
+            name: "1.2 Trộn ô phần Tiêu đề (Header)",
+            desc: "Mới chỉ thực hiện được một trong hai kỹ thuật rowspan hoặc colspan ở tiêu đề.",
+            pass: false, score: 0.75, max: 1.5
+        });
+    } else {
+        crits.push({
+            name: "1.2 Trộn ô phần Tiêu đề (Header)",
+            desc: "Chưa cấu hình tiêu đề 2 tầng kết hợp rowspan=\"2\" và colspan=\"3\".",
+            pass: false, score: 0, max: 1.5
+        });
+    }
+
+    let dataMergedCorrect = false;
+    if (hasTable) {
+        if (rule.tableType === "COLSPAN_DATA") {
+            const dataRows = tables[0].querySelectorAll("tbody tr, tr");
+            dataRows.forEach((row, idx) => {
+                if (idx >= 2) {
+                    const col2Cells = row.querySelectorAll('[colspan="2"], [colspan="3"]');
+                    if (col2Cells.length > 0) dataMergedCorrect = true;
+                }
+            });
+            if (dataMergedCorrect) {
+                b1 += 1.5;
+                crits.push({
+                    name: `1.3 Dữ liệu khớp đúng đề (Trộn Cột)`,
+                    desc: "Hàng số 2 đã dùng đúng colspan=\"2\" để gộp cột điểm thành ô Đặc cách.",
+                    pass: true, score: 1.5, max: 1.5
+                });
+            } else {
+                crits.push({
+                    name: `1.3 Dữ liệu khớp đúng đề (Trộn Cột)`,
+                    desc: `Sai cấu trúc đề! Đề bài yêu cầu hàng 2 phải gộp 2 cột điểm bằng colspan=\"2\".`,
+                    pass: false, score: 0, max: 1.5
+                });
+            }
+        } else {
+            const dataRows = tables[0].querySelectorAll("tbody tr, tr");
+            dataRows.forEach((row, idx) => {
+                if (idx >= 2) {
+                    const rowSpanCells = row.querySelectorAll('[rowspan="2"]');
+                    if (rowSpanCells.length > 0) dataMergedCorrect = true;
+                }
+            });
+            if (dataMergedCorrect) {
+                b1 += 1.5;
+                crits.push({
+                    name: `1.3 Dữ liệu khớp đúng đề (Trộn Hàng)`,
+                    desc: "Cột xếp loại đã dùng đúng rowspan=\"2\" gộp 2 hàng dữ liệu cho 2 học sinh.",
+                    pass: true, score: 1.5, max: 1.5
+                });
+            } else {
+                crits.push({
+                    name: `1.3 Dữ liệu khớp đúng đề (Trộn Hàng)`,
+                    desc: `Sai cấu trúc đề! Đề bài yêu cầu cột xếp loại phải dùng rowspan=\"2\" gộp 2 dòng.`,
+                    pass: false, score: 0, max: 1.5
+                });
+            }
+        }
+    }
+
+    /* BÀI 2: OL LỒNG UL (3đ) */
+    const ols = doc.querySelectorAll("ol");
+    let hasOlNestingUl = false;
+    let validOlType = false;
+    let validNestedUlType = false;
+    let foundOlRaw = "";
+    let foundUlRaw = "";
+
+    ols.forEach(ol => {
+        const uls = ol.querySelectorAll("ul");
+        if (uls.length > 0) {
+            hasOlNestingUl = true;
+            foundOlRaw = getListType(ol);
+            if (isTypeMatch(foundOlRaw, rule.olExpected)) {
+                validOlType = true;
+            }
+            uls.forEach(u => {
+                const uRaw = getListType(u);
+                if (isTypeMatch(uRaw, rule.ulInOlExpected)) {
+                    validNestedUlType = true;
+                    foundUlRaw = uRaw;
+                }
+            });
+        }
+    });
+
+    if (hasOlNestingUl) {
+        b2 += 1.5;
+        crits.push({
+            name: "2.1 Cấu trúc <ol> lồng <ul>",
+            desc: "Đã tạo đúng danh sách có thứ tự bên ngoài và lồng danh sách không thứ tự bên trong.",
+            pass: true, score: 1.5, max: 1.5
+        });
+    } else {
+        crits.push({
+            name: "2.1 Cấu trúc <ol> lồng <ul>",
+            desc: "Chưa lồng đúng các thẻ <ul> con vào bên trong từng mục của <ol>.",
+            pass: false, score: 0, max: 1.5
+        });
+    }
+
+    if (validOlType && validNestedUlType) {
+        b2 += 1.5;
+        crits.push({
+            name: `2.2 Định dạng List đúng chuẩn theo đề`,
+            desc: `Chính xác! Thẻ ngoài nhận '${foundOlRaw}', thẻ trong nhận '${foundUlRaw}' (qua type hoặc list-style-type).`,
+            pass: true, score: 1.5, max: 1.5
+        });
+    } else if (validOlType || validNestedUlType) {
+        b2 += 0.75;
+        crits.push({
+            name: `2.2 Định dạng List đúng chuẩn theo đề`,
+            desc: `Chỉ mới đúng 1 cấp. Yêu cầu của đề là ol (${rule.olExpected[0]}) và ul (${rule.ulInOlExpected.join('/')}).`,
+            pass: false, score: 0.75, max: 1.5
+        });
+    } else {
+        crits.push({
+            name: `2.2 Định dạng List đúng chuẩn theo đề`,
+            desc: `Sai định dạng! Đề yêu cầu ol (${rule.olExpected[0]}) và ul (${rule.ulInOlExpected.join('/')}).`,
+            pass: false, score: 0, max: 1.5
+        });
+    }
+
+    /* BÀI 3: UL LỒNG OL (3đ) */
+    const uls = doc.querySelectorAll("ul");
+    let hasUlNestingOl = false;
+    let validUlRootType = false;
+    let validNestedOlType = false;
+    let foundRootUlRaw = "";
+    let foundNestedOlRaw = "";
+
+    uls.forEach(ul => {
+        const innerOls = ul.querySelectorAll("ol");
+        if (innerOls.length > 0) {
+            hasUlNestingOl = true;
+            foundRootUlRaw = getListType(ul);
+            if (isTypeMatch(foundRootUlRaw, rule.ulExpected)) {
+                validUlRootType = true;
+            }
+            innerOls.forEach(o => {
+                const oRaw = getListType(o);
+                if (isTypeMatch(oRaw, rule.olInUlExpected)) {
+                    validNestedOlType = true;
+                    foundNestedOlRaw = oRaw;
+                }
+            });
+        }
+    });
+
+    if (hasUlNestingOl) {
+        b3 += 1.5;
+        crits.push({
+            name: "3.1 Cấu trúc <ul> lồng <ol>",
+            desc: "Đã tạo đúng danh sách không thứ tự bên ngoài và lồng danh sách có thứ tự bên trong.",
+            pass: true, score: 1.5, max: 1.5
+        });
+    } else {
+        crits.push({
+            name: "3.1 Cấu trúc <ul> lồng <ol>",
+            desc: "Chưa lồng đúng các thẻ <ol> con vào bên trong từng mục của <ul>.",
+            pass: false, score: 0, max: 1.5
+        });
+    }
+
+    if (validUlRootType && validNestedOlType) {
+        b3 += 1.5;
+        crits.push({
+            name: `3.2 Định dạng List đúng chuẩn theo đề`,
+            desc: `Chính xác! Thẻ ngoài nhận '${foundRootUlRaw}', thẻ trong nhận '${foundNestedOlRaw}' (qua type hoặc list-style-type).`,
+            pass: true, score: 1.5, max: 1.5
+        });
+    } else if (validUlRootType || validNestedOlType) {
+        b3 += 0.75;
+        crits.push({
+            name: `3.2 Định dạng List đúng chuẩn theo đề`,
+            desc: `Chỉ mới đúng 1 cấp. Yêu cầu của đề là ul (${rule.ulExpected[0]}) và ol (${rule.olInUlExpected.join('/')}).`,
+            pass: false, score: 0.75, max: 1.5
+        });
+    } else {
+        crits.push({
+            name: `3.2 Định dạng List đúng chuẩn theo đề`,
+            desc: `Sai định dạng! Đề yêu cầu ul (${rule.ulExpected[0]}) và ol (${rule.olInUlExpected.join('/')}).`,
+            pass: false, score: 0, max: 1.5
+        });
+    }
+
+    const total = b1 + b2 + b3;
+    latestGradeResult = {
+        totalScore: Math.min(10, total),
+        b1, b2, b3, crits
+    };
+    return latestGradeResult;
+}
+
+function gradeCurrentCode() {
+    const rawHtml = currentFileContent.trim();
+    const deId = parseInt(document.getElementById('deSelect').value) || 1;
+
+    const preview = document.getElementById('preview');
+    preview.srcdoc = rawHtml || "<p style='color:#888; padding:20px; text-align:center;'>Chưa có bài nộp</p>";
+
+    if (!rawHtml) {
+        document.getElementById('totalScore').innerHTML = `0.0 <span style="font-size: 18px; color:#5f6368;">/ 10</span>`;
+        document.getElementById('statusBadge').className = "badge badge-fail";
+        document.getElementById('statusBadge').innerText = "Chưa nộp bài";
+        document.getElementById('critContainer').innerHTML = "<p style='color:#777; font-size:13px; text-align:center; padding:20px;'>Vui lòng chọn hoặc kéo thả tệp bài làm.</p>";
         return;
     }
 
-    const file = event.target.files[0];
-    if (!file) return;
+    const res = evaluateStrict(rawHtml, deId);
 
-    document.getElementById('displayStudent').textContent = "Học sinh: " + name + " - Lớp: " + cls;
-    document.getElementById('fileNameDisplay').textContent = file.name;
+    document.getElementById('totalScore').innerHTML = `${res.totalScore.toFixed(1)} <span style="font-size: 18px; color:#5f6368;">/ 10</span>`;
+    const badge = document.getElementById('statusBadge');
+    if (res.totalScore >= 8.0) {
+        badge.className = "badge badge-pass";
+        badge.innerText = "ĐẠT - XUẤT SẮC";
+    } else if (res.totalScore >= 5.0) {
+        badge.className = "badge badge-pass";
+        badge.innerText = "ĐẠT YÊU CẦU";
+    } else {
+        badge.className = "badge badge-fail";
+        badge.innerText = "CHƯA ĐẠT";
+    }
+    document.getElementById('gradeTime').innerText = `Chấm lúc: ${new Date().toLocaleTimeString('vi-VN')}`;
 
-    const textReader = new FileReader();
-    textReader.onload = function(e) {
-        const fileContent = e.target.result;
-        document.getElementById('previewFrame').srcdoc = fileContent;
-        evaluateCode(fileContent, file.name, name, cls);
-    };
-    textReader.readAsText(file);
+    const container = document.getElementById('critContainer');
+    container.innerHTML = "";
+    res.crits.forEach(c => {
+        const item = document.createElement('div');
+        item.className = `crit-item ${c.pass ? 'pass' : 'fail'}`;
+        item.innerHTML = `
+            <div class="crit-info">
+                <div class="crit-title">${c.name}</div>
+                <div class="crit-desc">${c.desc}</div>
+            </div>
+            <div class="crit-score ${c.pass ? 'pass' : 'fail'}">+${c.score.toFixed(2)} / ${c.max}đ</div>
+        `;
+        container.appendChild(item);
+    });
 }
 
-// LOGIC CHẤM GIAO DIỆN HIỂN THỊ ĐÚNG (KHÔNG CHẤM MÀU SẮC, COI NHƯ ĐEN MẶC ĐỊNH)
-function evaluateCode(htmlContent, fileName, name, cls) {
-    const raw = htmlContent.toLowerCase();
+// HÀM GỬI DỮ LIỆU THỰC SỰ LÊN GOOGLE APPS SCRIPT
+async function submitToGoogle() {
+    const studentNameInput = document.getElementById('studentName');
+    const studentName = studentNameInput.value.trim();
+    const statusBox = document.getElementById('submitStatus');
+    const btn = document.getElementById('btnSubmit');
 
-    let scoreB1 = 0, scoreB2 = 0, scoreB3 = 0;
-    const details = [];
-
-    function addCheck(ex, name, max, passed, part) {
-        const pts = passed ? max : 0;
-        if (part === 1) scoreB1 += pts;
-        if (part === 2) scoreB2 += pts;
-        if (part === 3) scoreB3 += pts;
-        details.push({ ex, name, pts, max, passed });
+    if (!studentName) {
+        alert("⚠️ Vui lòng điền đầy đủ Họ và tên trước khi bấm Nộp bài!");
+        studentNameInput.focus();
+        return;
     }
 
-    // ==========================================
-    // BÀI 1: BẢNG DỮ LIỆU (TỔNG 4.0 ĐIỂM)
-    // ==========================================
-    // 1. Có bảng, có tiêu đề bảng "Kết quả đánh giá vận động viên" và có khung viền (1.0 đ)
-    const hasTable = raw.includes('<table');
-    const hasCaption = raw.includes('kết quả đánh giá vận động viên');
-    const hasBorder = raw.includes('border');
-    addCheck('Bài 1: Bảng', 'Giao diện có bảng, tiêu đề bảng và khung viền', 1.0, (hasTable && hasCaption && hasBorder), 1);
+    if (!currentFileContent) {
+        alert("⚠️ Em chưa tải tệp bài làm (.html) lên. Vui lòng chọn tệp bài làm trước!");
+        return;
+    }
 
-    // 2. Tiêu đề bảng có cấu trúc gộp hàng (rowspan) và gộp cột (colspan) (1.5 đ)
-    const hasRowspan = raw.includes('rowspan');
-    const hasColspan = raw.includes('colspan');
-    const hasHeaderFields = raw.includes('họ và tên') && raw.includes('thể lực');
-    addCheck('Bài 1: Bảng', 'Tiêu đề hiển thị đúng cấu trúc gộp dòng và gộp cột', 1.5, (hasRowspan && hasColspan && hasHeaderFields), 1);
+    const deId = document.getElementById('deSelect').value;
+    const score = latestGradeResult ? latestGradeResult.totalScore.toFixed(1) : "0.0";
 
-    // 3. Có ô "Đặc cách" được gộp cột trên dòng 2 (1.5 đ)
-    const hasDacCach = raw.includes('đặc cách') && hasColspan;
-    addCheck('Bài 1: Bảng', 'Dòng 2 hiển thị ô "Đặc cách" được gộp cột', 1.5, hasDacCach, 1);
+    const utf8Bytes = new TextEncoder().encode(currentFileContent);
+    let binary = '';
+    utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+    const base64Content = btoa(binary);
 
-
-    // ==========================================
-    // BÀI 2: DANH SÁCH CÓ THỨ TỰ (TỔNG 3.0 ĐIỂM)
-    // ==========================================
-    // 1. Hiển thị danh sách số La Mã (I, II) và biểu thức mũ ax² (0.75 đ)
-    const hasOl = raw.includes('<ol');
-    const hasTypeI = raw.includes('type="i"') || raw.includes("type='i'") || raw.includes('type=i');
-    const hasSup = raw.includes('<sup');
-    addCheck('Bài 2: Có thứ tự', 'Hiển thị danh sách La Mã (I, II...) và số mũ (ax²)', 0.75, (hasOl && (hasTypeI || raw.includes('khảo sát hệ số')) && hasSup), 2);
-
-    // 2. Hiển thị danh sách con (a, b, c) và chỉ số dưới x₁, x₂ (1.0 đ)
-    const hasTypeA = raw.includes('type="a"') || raw.includes("type='a'") || raw.includes('type=a');
-    const hasSub = raw.includes('<sub');
-    addCheck('Bài 2: Có thứ tự', 'Hiển thị danh sách con (a, b, c) và chỉ số dưới (x₁, x₂)', 1.0, (hasTypeA && hasSub), 2);
-
-    // 3. Hiển thị đoạn ngắt quãng lưu ý in nghiêng và đếm tiếp tục từ III (1.25 đ)
-    const hasStart = raw.includes('start=');
-    const hasNote = raw.includes('lưu ý') || raw.includes('kiểm tra lại');
-    const hasItalic = raw.includes('<em') || raw.includes('<i');
-    addCheck('Bài 2: Có thứ tự', 'Đoạn ngắt quãng in nghiêng và đánh số tiếp nối', 1.25, ((hasStart || hasNote) && hasItalic), 2);
-
-
-    // ==========================================
-    // BÀI 3: DANH SÁCH UL & MÔ TẢ (TỔNG 3.0 ĐIỂM)
-    // ==========================================
-    // 1. Hiển thị danh sách không có thứ tự lồng nhau (1.0 đ)
-    const hasUl = raw.includes('<ul');
-    const hasTopics = raw.includes('trí tuệ nhân tạo') && raw.includes('mạng máy tính');
-    addCheck('Bài 3: Danh sách & DL', 'Hiển thị danh sách không có thứ tự lồng nhau', 1.0, (hasUl && hasTopics), 3);
-
-    // 2. Hiển thị danh sách tra cứu định nghĩa các thuật ngữ (1.0 đ)
-    const hasDl = raw.includes('<dl') || (raw.includes('<dt') && raw.includes('<dd'));
-    const hasTerms = raw.includes('ai') && raw.includes('internet') && raw.includes('html5');
-    addCheck('Bài 3: Danh sách & DL', 'Hiển thị danh sách tra cứu các thuật ngữ (AI, Internet, HTML5)', 1.0, (hasDl || hasTerms), 3);
-
-    // 3. Sử dụng đúng định dạng nhấn mạnh văn bản (in đậm tiêu đề/mục) (1.0 đ)
-    const hasBold = raw.includes('<strong') || raw.includes('<b');
-    addCheck('Bài 3: Danh sách & DL', 'Sử dụng định dạng nhấn mạnh cho các mục tiêu đề (strong/b)', 1.0, hasBold, 3);
-
-
-    // ==========================================
-    // TÍNH ĐIỂM & ĐỔ DỮ LIỆU
-    // ==========================================
-    const total = scoreB1 + scoreB2 + scoreB3;
-    document.getElementById('totalPoints').textContent = total.toFixed(2);
-
-    const tbody = document.getElementById('criteriaTableBody');
-    tbody.innerHTML = '';
-    details.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><strong>${item.ex}</strong></td>
-            <td>${item.name}</td>
-            <td style="text-align: center; font-weight: bold;">${item.pts} / ${item.max}</td>
-            <td><span class="${item.passed ? 'status-pass' : 'status-fail'}">${item.passed ? '✓ Đạt' : '✗ Chưa đạt'}</span></td>
-        `;
-        tbody.appendChild(row);
-    });
-
-    const safeName = name.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
-    const formattedFileName = `${cls}_${safeName}.html`;
-
-    gradePayload = {
-        fullname: name,
-        className: cls,
-        fileName: fileName,
-        savedFileName: formattedFileName,
-        htmlContent: htmlContent,
-        scoreB1: scoreB1.toFixed(2),
-        scoreB2: scoreB2.toFixed(2),
-        scoreB3: scoreB3.toFixed(2),
-        totalScore: total.toFixed(2)
-    };
-
-    const saveBtn = document.getElementById('saveBtn');
-    saveBtn.disabled = false;
-    saveBtn.textContent = "Xác nhận & Lưu điểm + Đẩy file lên Drive";
-    document.getElementById('statusMsg').textContent = "";
-    document.getElementById('resultBoard').style.display = 'block';
-}
-
-// LƯU NỘI BỘ QUA GOOGLE SCRIPT (CHẠY ỔN ĐỊNH 100%, KHÔNG LỖI MẠNG)
-function saveToSystem() {
-    if (!gradePayload) return;
-
-    const btn = document.getElementById('saveBtn');
-    const msg = document.getElementById('statusMsg');
+    // Gửi dạng URLSearchParams chuẩn form POST để Apps Script nhận được 100%
+    const formData = new URLSearchParams();
+    formData.append("hoTen", studentName);
+    formData.append("maDe", deId);
+    formData.append("diem", score);
+    formData.append("fileName", currentFileName || "BaiLam.html");
+    formData.append("fileBase64", base64Content);
 
     btn.disabled = true;
-    btn.textContent = "Đang lưu dữ liệu...";
-    msg.style.color = "#1a73e8";
-    msg.textContent = "Hệ thống đang ghi nhận điểm vào Google Sheet và lưu file lên Drive...";
+    statusBox.className = "submit-status status-loading";
+    statusBox.innerText = "⏳ Đang kết nối và gửi bài vào Google Sheet & Drive...";
 
-    google.script.run
-        .withSuccessHandler(function(response) {
-            if (response.status === "success") {
-                btn.textContent = "Đã lưu thành công";
-                msg.style.color = "#137333";
-                msg.textContent = "✓ Tệp bài làm đã lưu vào Google Drive và điểm đã ghi nhận vào Sheet!";
-            } else {
-                btn.disabled = false;
-                btn.textContent = "Thử lưu lại";
-                msg.style.color = "#d93025";
-                msg.textContent = "Lỗi xử lý: " + response.message;
-            }
-        })
-        .withFailureHandler(function(err) {
-            btn.disabled = false;
-            btn.textContent = "Thử lưu lại";
-            msg.style.color = "#d93025";
-            msg.textContent = "Lỗi hệ thống: " + err.message;
-        })
-        .processStudentSubmission(gradePayload);
+    try {
+        await fetch(GOOGLE_SCRIPT_WEBAPP_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+            },
+            body: formData.toString()
+        });
+
+        btn.disabled = false;
+        statusBox.className = "submit-status status-success";
+        statusBox.innerHTML = `✅ <b>Nộp bài thành công!</b> Điểm số <b>${score}/10</b> của em <b>${studentName}</b> đã được gửi lên Google Sheet và Drive của giáo viên.`;
+
+    } catch (err) {
+        btn.disabled = false;
+        statusBox.className = "submit-status status-error";
+        statusBox.innerText = "❌ Lỗi khi gửi bài: " + err.message + ". Vui lòng thử lại!";
+    }
 }
 </script>
 
